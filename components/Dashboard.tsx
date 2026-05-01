@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { BadgeIndianRupee, PieChartIcon, Target, TrendingUp, Wallet } from "lucide-react";
+import { BadgeIndianRupee, PieChartIcon, TrendingUp, Wallet } from "lucide-react";
 import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
 import Skeleton from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/utils/format";
 import { Expense } from "@/utils/storage";
@@ -12,18 +11,22 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 type DashboardProps = {
   expenses: Expense[];
   isLoading: boolean;
-  budgetLimit: string;
-  onBudgetLimitChange: (value: string) => void;
+  selectedMonth: string;
+  monthlyIncome: number;
 };
 
 const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#06b6d4", "#8b5cf6"];
 
-export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLimitChange }: DashboardProps) {
+export default function Dashboard({
+  expenses,
+  isLoading,
+  selectedMonth,
+  monthlyIncome
+}: DashboardProps) {
   const insights = useMemo(() => {
-    const parsedBudgetLimit = Number(budgetLimit) || 0;
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const currentMonth = selectedMonth || new Date().toISOString().slice(0, 7);
     const monthlyTotal = expenses
       .filter((expense) => expense.date.startsWith(currentMonth))
       .reduce((sum, expense) => sum + expense.amount, 0);
@@ -35,7 +38,24 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
 
     const pieData = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
     const topCategory = [...pieData].sort((a, b) => b.value - a.value)[0];
-    const budgetProgress = parsedBudgetLimit > 0 ? Math.min((total / parsedBudgetLimit) * 100, 100) : 0;
+
+    const savings = monthlyIncome - monthlyTotal;
+    const savingsRate = monthlyIncome > 0 ? (savings / monthlyIncome) * 100 : 0;
+    const burnRate = monthlyIncome > 0 ? (monthlyTotal / monthlyIncome) * 100 : 0;
+
+    const now = new Date();
+    const isCurrentMonth = currentMonth === now.toISOString().slice(0, 7);
+    const dayCount = new Date(Number(currentMonth.split("-")[0]), Number(currentMonth.split("-")[1]), 0).getDate();
+    const elapsedDays = isCurrentMonth ? Math.max(1, now.getDate()) : dayCount;
+    // Early-month extrapolation (e.g. day 1) can wildly overstate burn.
+    // Use actual balance until enough days have elapsed for a stable projection.
+    const projectedSpend =
+      isCurrentMonth && elapsedDays < 5
+        ? monthlyTotal
+        : elapsedDays > 0
+          ? (monthlyTotal / elapsedDays) * dayCount
+          : monthlyTotal;
+    const projectedMonthEndBalance = monthlyIncome - projectedSpend;
 
     return {
       total,
@@ -43,9 +63,11 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
       categoryMap,
       pieData,
       topCategory,
-      budgetProgress
+      savingsRate,
+      burnRate,
+      projectedMonthEndBalance
     };
-  }, [expenses, budgetLimit]);
+  }, [expenses, selectedMonth, monthlyIncome]);
 
   if (isLoading) {
     return (
@@ -72,7 +94,7 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
       <Card>
         <p className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <TrendingUp size={16} />
-          This Month
+          {selectedMonth ? "Selected Month" : "This Month"}
         </p>
         <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
           {formatCurrency(insights.monthlyTotal)}
@@ -90,27 +112,21 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
           {insights.topCategory ? `${formatCurrency(insights.topCategory.value)} spent` : "No data yet"}
         </p>
       </Card>
-
-      <Card className="lg:col-span-1">
-        <h3 className="mb-3 inline-flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
-          <Target size={16} />
-          Budget Limit
-        </h3>
-        <Input
-          type="number"
-          min="0"
-          step="0.01"
-          value={budgetLimit}
-          onChange={(event) => onBudgetLimitChange(event.target.value)}
-        />
-        <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-          <div
-            className="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 transition-all duration-500"
-            style={{ width: `${insights.budgetProgress}%` }}
-          />
-        </div>
-        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-          {insights.budgetProgress.toFixed(0)}% of budget used
+      <Card>
+        <p className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <TrendingUp size={16} />
+          Savings Rate
+        </p>
+        <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{insights.savingsRate.toFixed(1)}%</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Burn rate: {insights.burnRate.toFixed(1)}%</p>
+      </Card>
+      <Card>
+        <p className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <Wallet size={16} />
+          Projected Month-End Balance
+        </p>
+        <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+          {formatCurrency(insights.projectedMonthEndBalance)}
         </p>
       </Card>
 

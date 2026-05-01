@@ -8,10 +8,12 @@ import Dashboard from "@/components/Dashboard";
 import ExpenseForm from "@/components/ExpenseForm";
 import ExpenseList from "@/components/ExpenseList";
 import Filters from "@/components/Filters";
+import IncomeManager from "@/components/IncomeManager";
 import MonthlyMoneyStory from "@/components/MonthlyMoneyStory";
 import SavingsGoals from "@/components/SavingsGoals";
 import Sidebar, { SidebarSection } from "@/components/Sidebar";
 import SmartInsights from "@/components/SmartInsights";
+import UpcomingBills from "@/components/UpcomingBills";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -22,9 +24,30 @@ import { exportExpensesToCsv } from "@/utils/export";
 import { Expense } from "@/utils/storage";
 
 const DEFAULT_CATEGORIES = ["Food", "Transport", "Shopping", "Bills", "Health", "Other"];
+const INCOME_STORAGE_KEY = "smart-expense-monthly-income-map";
+const parseIncomeInput = (rawValue: string): number | null => {
+  const normalized = rawValue.trim().toLowerCase().replace(/,/g, "");
+  if (!normalized) return 0;
+
+  const lakhMatch = normalized.match(/^(\d+(\.\d+)?)\s*(l|lac|lakh)$/);
+  if (lakhMatch) {
+    return Math.round(Number(lakhMatch[1]) * 100000);
+  }
+
+  const plain = Number(normalized);
+  if (Number.isNaN(plain) || plain < 0) return null;
+  return Math.round(plain);
+};
 
 export default function Home() {
-  const { expenses, isLoading, saveExpense, deleteExpense, editingExpense, setEditingExpense } = useExpenses();
+  const {
+    expenses,
+    isLoading,
+    saveExpense,
+    deleteExpense,
+    editingExpense,
+    setEditingExpense
+  } = useExpenses();
   const {
     selectedCategory: overviewCategory,
     selectedMonth: overviewMonth,
@@ -41,21 +64,10 @@ export default function Home() {
   } = useFilters(expenses);
   const { theme, toggleTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<SidebarSection>("overview");
-  const [budgetLimit, setBudgetLimit] = useState("5000");
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
-
-  useEffect(() => {
-    const rawBudget = window.localStorage.getItem("smart-expense-budget");
-    if (!rawBudget) return;
-
-    try {
-      const parsedBudget = JSON.parse(rawBudget) as string | number;
-      setBudgetLimit(String(parsedBudget));
-    } catch {
-      setBudgetLimit("5000");
-    }
-  }, []);
+  const [incomeByMonth, setIncomeByMonth] = useState<Record<string, string>>({});
+  const [incomeMonth, setIncomeMonth] = useState(new Date().toISOString().slice(0, 7));
 
   useEffect(() => {
     const rawCategories = window.localStorage.getItem("smart-expense-categories");
@@ -72,12 +84,25 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("smart-expense-budget", JSON.stringify(budgetLimit));
-  }, [budgetLimit]);
+    const rawIncomeMap = window.localStorage.getItem(INCOME_STORAGE_KEY);
+    if (!rawIncomeMap) return;
+    try {
+      const parsedIncomeMap = JSON.parse(rawIncomeMap) as Record<string, string>;
+      if (parsedIncomeMap && typeof parsedIncomeMap === "object") {
+        setIncomeByMonth(parsedIncomeMap);
+      }
+    } catch {
+      setIncomeByMonth({});
+    }
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem("smart-expense-categories", JSON.stringify(categories));
   }, [categories]);
+
+  useEffect(() => {
+    window.localStorage.setItem(INCOME_STORAGE_KEY, JSON.stringify(incomeByMonth));
+  }, [incomeByMonth]);
 
   const expenseCategories = useMemo(
     () => Array.from(new Set(expenses.map((expense) => expense.category))),
@@ -141,6 +166,8 @@ export default function Home() {
     () => overviewFilteredExpenses.slice(0, 5),
     [overviewFilteredExpenses]
   );
+  const activeOverviewMonth = overviewMonth || new Date().toISOString().slice(0, 7);
+  const activeMonthlyIncome = Number(incomeByMonth[activeOverviewMonth] ?? 0);
 
   const renderMainSection = () => {
     if (activeSection === "transactions") {
@@ -186,6 +213,29 @@ export default function Home() {
       );
     }
 
+    if (activeSection === "income") {
+      return (
+        <IncomeManager
+          selectedMonth={incomeMonth}
+          setSelectedMonth={setIncomeMonth}
+          savedIncomeAmount={incomeByMonth[incomeMonth] ?? ""}
+          allIncomes={incomeByMonth}
+          onSaveIncome={(value) => {
+            const parsedIncome = parseIncomeInput(value);
+            if (parsedIncome === null) {
+              toast.error("Enter valid income (e.g. 3000000, 30l, or 30 lakh)");
+              return;
+            }
+            setIncomeByMonth((prev) => ({
+              ...prev,
+              [incomeMonth]: String(parsedIncome)
+            }));
+            toast.success(`Income saved for ${incomeMonth}`);
+          }}
+        />
+      );
+    }
+
     if (activeSection === "settings") {
       return (
         <Card className="space-y-3">
@@ -219,16 +269,21 @@ export default function Home() {
         <Dashboard
           expenses={overviewFilteredExpenses}
           isLoading={isLoading}
-          budgetLimit={budgetLimit}
-          onBudgetLimitChange={setBudgetLimit}
+          selectedMonth={overviewMonth}
+          monthlyIncome={activeMonthlyIncome}
         />
         <MonthlyMoneyStory
           expenses={expenses}
           selectedMonth={overviewMonth}
           selectedCategory={overviewCategory}
         />
+        <UpcomingBills expenses={expenses} selectedMonth={overviewMonth} />
         <SmartInsights expenses={overviewFilteredExpenses} />
-        <SavingsGoals expenses={expenses} />
+        <SavingsGoals
+          expenses={expenses}
+          selectedMonth={overviewMonth}
+          selectedCategory={overviewCategory}
+        />
         <ExpenseForm
           onSave={handleSaveExpense}
           editingExpense={editingExpense}

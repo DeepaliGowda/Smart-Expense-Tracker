@@ -19,13 +19,17 @@ type FormState = {
   amount: string;
   category: string;
   date: string;
+  isRecurring: boolean;
+  dueDay: string;
 };
 
 const defaultState: FormState = {
   title: "",
   amount: "",
   category: "Food",
-  date: ""
+  date: "",
+  isRecurring: false,
+  dueDay: "1"
 };
 
 export default function ExpenseForm({
@@ -54,7 +58,9 @@ export default function ExpenseForm({
       title: editingExpense.title,
       amount: String(editingExpense.amount),
       category: editingExpense.category,
-      date: editingExpense.date
+      date: editingExpense.date,
+      isRecurring: Boolean(editingExpense.isRecurring && editingExpense.recurrence === "monthly"),
+      dueDay: String(editingExpense.dueDay ?? new Date(editingExpense.date).getDate())
     });
   }, [editingExpense]);
 
@@ -66,12 +72,20 @@ export default function ExpenseForm({
       return;
     }
 
+    const id = editingExpense?.id ?? crypto.randomUUID();
+    const dueDayNumber = Math.min(Math.max(Number(formState.dueDay) || 1, 1), 31);
+    const isRecurringMonthly = formState.isRecurring;
+
     onSave({
-      id: editingExpense?.id ?? crypto.randomUUID(),
+      id,
       title: formState.title.trim(),
       amount: parsedAmount,
       category: formState.category,
-      date: formState.date
+      date: formState.date,
+      isRecurring: isRecurringMonthly,
+      recurrence: isRecurringMonthly ? "monthly" : "none",
+      dueDay: isRecurringMonthly ? dueDayNumber : undefined,
+      recurringSourceId: isRecurringMonthly ? editingExpense?.recurringSourceId ?? id : undefined
     });
 
     setFormState(defaultState);
@@ -147,6 +161,33 @@ export default function ExpenseForm({
             className="pl-9 hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-800"
             required
           />
+        </div>
+        <div className="flex gap-2 md:col-span-2">
+          <label className="inline-flex items-center gap-2 rounded-xl border border-slate-300/90 bg-slate-50/90 px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+            <input
+              type="checkbox"
+              checked={formState.isRecurring}
+              onChange={(event) =>
+                setFormState((prev) => ({
+                  ...prev,
+                  isRecurring: event.target.checked
+                }))
+              }
+              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            Monthly recurring expense (rent, EMI, subscriptions)
+          </label>
+          {formState.isRecurring ? (
+            <Input
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Due day (1-31)"
+              value={formState.dueDay}
+              onChange={(event) => setFormState((prev) => ({ ...prev, dueDay: event.target.value }))}
+              className="w-44"
+            />
+          ) : null}
         </div>
         <div className="flex gap-2 md:col-span-2">
           <Button type="submit">{isEditing ? "Update Expense" : "Add Expense"}</Button>

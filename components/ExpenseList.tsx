@@ -58,6 +58,11 @@ export default function ExpenseList({ expenses, isLoading, onEdit, onDeleteReque
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {expense.category} • {new Date(expense.date).toLocaleDateString()}
               </p>
+              {expense.isRecurring && expense.recurrence === "monthly" ? (
+                <span className="mt-1 inline-flex rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300">
+                  Recurring monthly
+                </span>
+              ) : null}
             </div>
             <div className="flex items-center gap-2">
               <p className="min-w-24 text-right text-base font-bold text-slate-900 transition-transform duration-300 group-hover:scale-105 dark:text-slate-100">

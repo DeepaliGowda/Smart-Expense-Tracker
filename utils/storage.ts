@@ -4,6 +4,12 @@ export type Expense = {
   amount: number;
   category: string;
   date: string;
+  isRecurring?: boolean;
+  recurrence?: "none" | "monthly";
+  recurringSourceId?: string;
+  dueDay?: number;
+  isPaid?: boolean;
+  isIgnored?: boolean;
 };
 
 const STORAGE_KEY = "smart-expense-tracker-expenses";

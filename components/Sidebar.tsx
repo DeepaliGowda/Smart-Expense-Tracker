@@ -6,11 +6,12 @@ import {
   FolderKanban,
   LayoutDashboard,
   ListChecks,
+  PiggyBank,
   Settings
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-export type SidebarSection = "overview" | "transactions" | "add" | "categories" | "settings";
+export type SidebarSection = "overview" | "transactions" | "add" | "income" | "categories" | "settings";
 
 type SidebarProps = {
   activeSection: SidebarSection;
@@ -21,6 +22,7 @@ const items: Array<{ id: SidebarSection; label: string; icon: ComponentType<{ si
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "transactions", label: "Transactions", icon: ListChecks },
   { id: "add", label: "Add Expense", icon: BadgeIndianRupee },
+  { id: "income", label: "Monthly Income", icon: PiggyBank },
   { id: "categories", label: "Categories", icon: FolderKanban },
   { id: "settings", label: "Settings", icon: Settings }
 ];
