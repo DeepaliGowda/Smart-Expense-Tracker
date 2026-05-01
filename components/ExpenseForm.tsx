@@ -126,7 +126,7 @@ export default function ExpenseForm({
           <select
             value={formState.category}
             onChange={(event) => setFormState((prev) => ({ ...prev, category: event.target.value }))}
-            className="w-full rounded-xl border border-slate-300 bg-white/70 py-2.5 pl-9 pr-3.5 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200 hover:border-indigo-300 hover:shadow-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:border-indigo-800 dark:focus:ring-indigo-900"
+            className="w-full rounded-xl border border-slate-300/90 bg-slate-50/90 py-2.5 pl-9 pr-3.5 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200 hover:border-indigo-300 hover:shadow-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:border-indigo-800 dark:focus:ring-indigo-900"
           >
             {categories.map((category) => (
               <option key={category} value={category} className="text-slate-900">

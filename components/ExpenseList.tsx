@@ -49,7 +49,7 @@ export default function ExpenseList({ expenses, isLoading, onEdit, onDeleteReque
         {expenses.map((expense) => (
           <li
             key={expense.id}
-            className="group flex flex-col justify-between gap-4 rounded-2xl border border-slate-200/80 bg-gradient-to-r from-white/90 via-white/70 to-indigo-50/60 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_14px_35px_-14px_rgba(79,70,229,0.45)] dark:border-slate-700 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-indigo-950/20 dark:hover:border-indigo-800 sm:flex-row sm:items-center"
+            className="group flex flex-col justify-between gap-4 rounded-2xl border border-slate-200/80 bg-gradient-to-r from-slate-50/95 via-slate-50/85 to-indigo-100/45 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_14px_35px_-14px_rgba(79,70,229,0.45)] dark:border-slate-700 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:hover:border-indigo-800 sm:flex-row sm:items-center"
           >
             <div>
               <p className="text-base font-semibold text-slate-900 transition-colors duration-300 group-hover:text-indigo-600 dark:text-slate-100 dark:group-hover:text-indigo-300">

@@ -4,16 +4,27 @@
 
 :root {
   color-scheme: light;
+  --bg-main: #eef2ff;
+  --bg-main-2: #f8fafc;
+  --bg-main-3: #ecfeff;
+  --bg-grid: rgba(15, 23, 42, 0.045);
 }
 
 :root.dark {
   color-scheme: dark;
+  --bg-main: #020617;
+  --bg-main-2: #0b1225;
+  --bg-main-3: #0a142d;
+  --bg-grid: rgba(148, 163, 184, 0.12);
 }
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
-  background-image: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(34, 211, 238, 0.08), transparent 35%);
+  @apply text-slate-900 antialiased transition-colors duration-300 dark:text-slate-100;
+  background: radial-gradient(circle at 5% -10%, rgba(99, 102, 241, 0.18), transparent 34%),
+    radial-gradient(circle at 90% -15%, rgba(59, 130, 246, 0.2), transparent 34%),
+    radial-gradient(circle at 60% 120%, rgba(14, 165, 233, 0.18), transparent 36%),
+    linear-gradient(165deg, var(--bg-main), var(--bg-main-2) 45%, var(--bg-main-3));
+  min-height: 100vh;
 }
 
 * {
@@ -22,4 +33,43 @@ body {
 
 ::selection {
   @apply bg-indigo-200 text-slate-900 dark:bg-indigo-800 dark:text-slate-100;
+}
+
+@layer components {
+  .app-grid-bg {
+    background-image: linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(circle at center, black 35%, transparent 92%);
+  }
+
+  .finance-orb {
+    @apply pointer-events-none absolute rounded-full blur-3xl;
+    animation: floatOrb 12s ease-in-out infinite;
+  }
+
+  .animate-rise-in {
+    animation: riseIn 0.55s ease-out both;
+  }
+}
+
+@keyframes floatOrb {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -16px, 0) scale(1.05);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

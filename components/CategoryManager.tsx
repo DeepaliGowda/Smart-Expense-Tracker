@@ -56,7 +56,7 @@ export default function CategoryManager({
           return (
             <div
               key={category}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900/60"
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/85 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
             >
               <span>{category}</span>
               <Button

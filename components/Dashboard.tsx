@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { PieChartIcon, Target, TrendingUp, Wallet } from "lucide-react";
+import { BadgeIndianRupee, PieChartIcon, Target, TrendingUp, Wallet } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Skeleton from "@/components/ui/Skeleton";
@@ -80,7 +80,7 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
       </Card>
       <Card>
         <p className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-          <PieChartIcon size={16} />
+          <BadgeIndianRupee size={16} />
           Top Category
         </p>
         <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -105,7 +105,7 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
         />
         <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
           <div
-            className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 transition-all duration-500"
+            className="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 transition-all duration-500"
             style={{ width: `${insights.budgetProgress}%` }}
           />
         </div>
@@ -115,7 +115,10 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
       </Card>
 
       <Card className="lg:col-span-2">
-        <h2 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">Category-wise Spending</h2>
+        <h2 className="mb-4 inline-flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+          <PieChartIcon size={18} className="text-cyan-500" />
+          Category-wise Spending
+        </h2>
         {insights.pieData.length === 0 ? (
           <p className="text-sm text-slate-500">Add expenses to view chart.</p>
         ) : (
@@ -149,7 +152,7 @@ export default function Dashboard({ expenses, isLoading, budgetLimit, onBudgetLi
           {insights.pieData.map((item, index) => (
             <p
               key={item.name}
-              className="inline-flex items-center justify-between gap-3 rounded-lg border border-slate-200/70 bg-white/60 px-2.5 py-2 text-xs text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-indigo-800"
+              className="inline-flex items-center justify-between gap-3 rounded-lg border border-slate-200/70 bg-slate-50/90 px-2.5 py-2 text-xs text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-indigo-800"
             >
               <span className="inline-flex items-center gap-2">
               <span

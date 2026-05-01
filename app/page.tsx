@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Download, Moon, Sun } from "lucide-react";
+import { Download, Moon, PiggyBank, ShieldCheck, Sparkles, Sun } from "lucide-react";
 import toast from "react-hot-toast";
 import CategoryManager from "@/components/CategoryManager";
 import Dashboard from "@/components/Dashboard";
@@ -253,42 +253,72 @@ export default function Home() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
+    <main className="relative min-h-screen overflow-x-hidden">
+      <div className="pointer-events-none absolute inset-0 app-grid-bg opacity-60 dark:opacity-40" />
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-28 -top-28 h-80 w-80 rounded-full bg-indigo-300/30 blur-3xl dark:bg-indigo-600/15" />
-        <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-cyan-300/25 blur-3xl dark:bg-cyan-600/15" />
-        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-violet-300/20 blur-3xl dark:bg-violet-600/10" />
+        <div className="finance-orb -left-24 -top-24 h-80 w-80 bg-indigo-300/35 dark:bg-indigo-500/10" />
+        <div
+          className="finance-orb right-0 top-16 h-72 w-72 bg-sky-300/35 dark:bg-sky-500/10"
+          style={{ animationDelay: "1.8s" }}
+        />
+        <div
+          className="finance-orb bottom-0 left-1/3 h-64 w-64 bg-indigo-300/30 dark:bg-indigo-500/10"
+          style={{ animationDelay: "3.5s" }}
+        />
       </div>
       <div className="relative z-10 mx-auto max-w-7xl space-y-6 px-4 py-8 md:px-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">
-              Smart Expense Tracker
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={handleExportCsv}
-              disabled={
-                (activeSection === "transactions" ? transactionFilteredExpenses : overviewFilteredExpenses).length === 0
-              }
-            >
-              <Download size={15} />
-              Export CSV
-            </Button>
-            <Button variant="ghost" onClick={toggleTheme}>
-              {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
-              {theme === "light" ? "Dark" : "Light"}
-            </Button>
+        <header className="animate-rise-in rounded-3xl border border-slate-200/80 bg-slate-50/85 p-5 shadow-[0_30px_80px_-34px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-slate-700 dark:bg-slate-950 dark:backdrop-blur-none dark:shadow-[0_30px_80px_-34px_rgba(2,6,23,0.9)]">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-3">
+              <p className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-100/70 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/15 dark:text-indigo-200">
+                <Sparkles size={14} />
+                Finance Intelligence Dashboard
+              </p>
+              <h1 className="bg-gradient-to-r from-indigo-600 via-blue-600 to-slate-700 bg-clip-text text-3xl font-black tracking-tight text-transparent md:text-5xl">
+                Smart Expense Tracker
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Keep spending under control with live analytics, focused goals, and an elegant command center.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">
+                  <PiggyBank size={13} className="text-indigo-500" />
+                  Expense Planning
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">
+                  <ShieldCheck size={13} className="text-indigo-500" />
+                  Secure Local Data
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={handleExportCsv}
+                disabled={
+                  (activeSection === "transactions" ? transactionFilteredExpenses : overviewFilteredExpenses)
+                    .length === 0
+                }
+              >
+                <Download size={15} />
+                Export CSV
+              </Button>
+              <Button variant="ghost" onClick={toggleTheme}>
+                {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+                {theme === "light" ? "Dark" : "Light"}
+              </Button>
+            </div>
           </div>
         </header>
 
-        <div className="grid gap-5 lg:grid-cols-[250px,1fr]">
+        <div className="grid animate-rise-in gap-5 lg:grid-cols-[260px,1fr]">
           <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
           <section className="space-y-5">{renderMainSection()}</section>
         </div>
 
+        <footer className="animate-rise-in flex items-center justify-center text-center text-xs text-slate-500 dark:text-slate-400">
+          Built for intentional spending and smarter monthly decisions.
+        </footer>
         <ConfirmModal
           open={Boolean(expenseToDelete)}
           title="Delete this expense?"
